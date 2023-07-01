@@ -4,6 +4,8 @@ var context = canvas.getContext("2d");
 var mouseX = 0;
 var mouseY = 0;
 
+var mousePressed = false;
+
 var ship = {
   x: canvas.width / 2,
   y: canvas.height / 2,
@@ -19,6 +21,8 @@ var projectiles = [];  // Array para armazenar os projéteis
 var projectileSpeed = 15;  // Velocidade dos projéteis
 var projectileWidth = 5;  // Largura dos projéteis
 var projectileHeight = 10;  // Altura dos projéteis
+var canShoot = true;  // Variável para controlar se é possível disparar um projétil no momento
+var projectileDelay = 200;  // Atraso entre cada disparo (em milissegundos)
 
 var shipImage = new Image();
 shipImage.src = "Assets/Nave_1_Teste.png";
@@ -66,17 +70,33 @@ function handleKeyDown(event) {
   }
 }
 
-function shoot(){
+function handleMouseDown(event) {
+  mousePressed = true;
 
-  var projectile = {
-    x: ship.x + Math.cos(ship.angle),  // Atualiza a fórmula para calcular a posição x do projétil
-    y: ship.y + Math.sin(ship.angle),  // Atualiza a fórmula para calcular a posição y do projétil
-    angle: ship.angle
-  };
-  projectiles.push(projectile);
-
+  shoot();  // Dispara o projétil quando o botão do mouse é pressionado
 }
 
+function handleMouseUp(event) {
+  mousePressed = false;
+
+  // Faça algo caso necessário quando o botão do mouse é solto
+}
+
+function shoot() {
+  if (canShoot) {
+    var projectile = {
+      x: ship.x + Math.cos(ship.angle),  // Calcula a posição x do projétil
+      y: ship.y + Math.sin(ship.angle),  // Calcula a posição y do projétil
+      angle: ship.angle
+    };
+    projectiles.push(projectile);
+    
+    canShoot = false;  // Desativa a possibilidade de disparar novamente
+    setTimeout(function() {
+      canShoot = true;  // Ativa a possibilidade de disparar novamente após o atraso
+    }, projectileDelay);
+  }
+}
 function handleKeyUp(event) {
   if (event.key === "a" || event.key === "d") {
     ship.dx = 0;
@@ -86,8 +106,14 @@ function handleKeyUp(event) {
 }
 
 function update() {
+  resizeCanvas();
   draw();
   moveShip();
+
+  if (mousePressed) {
+    shoot();
+  }
+
   moveProjectiles();
   requestAnimationFrame(update);
 }
@@ -148,11 +174,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-
-// Define o tamanho inicial do canvas
-resizeCanvas();
-
 // Função para redimensionar o canvas
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -176,7 +197,10 @@ document.addEventListener("mousemove", handleMouseMove);
 document.addEventListener("keyup", handleKeyUp);
 document.addEventListener("keypress", handleKeyDown);
 //canvas.addEventListener("click", toggleFullScreen);
-document.addEventListener("mousedown", shoot);
+
+canvas.addEventListener("mousedown", handleMouseDown);
+canvas.addEventListener("mouseup", handleMouseUp);
 
 
+// Inicialize o jogo
 update();
