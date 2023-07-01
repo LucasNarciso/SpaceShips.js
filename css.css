@@ -1,0 +1,20 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+  
+#gameCanvas{
+    background-color: #111;
+    cursor: crosshair;
+    /* cursor: url("Assets/Aim_Cursor_teste.png"), crosshair; */
+    
+}
